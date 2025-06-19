@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mental Health & Stress Predictor</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow-x: auto;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .floating-shapes {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .shape {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      animation: float 20s infinite linear;
+    }
+
+    .shape:nth-child(1) {
+      width: 80px;
+      height: 80px;
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    .shape:nth-child(2) {
+      width: 120px;
+      height: 120px;
+      left: 20%;
+      animation-delay: 2s;
+      background: rgba(255, 182, 193, 0.2);
+    }
+
+    .shape:nth-child(3) {
+      width: 60px;
+      height: 60px;
+      left: 70%;
+      animation-delay: 4s;
+      background: rgba(173, 216, 230, 0.2);
+    }
+
+    .shape:nth-child(4) {
+      width: 100px;
+      height: 100px;
+      left: 85%;
+      animation-delay: 6s;
+      background: rgba(255, 255, 0, 0.1);
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    .main-container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1400px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: stretch;
+    }
+
+    .input-section {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 25px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .input-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+    }
+
+    .output-section {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 25px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .output-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, #a8edea, #fed6e3, #d299c2, #fef9d7, #efd5ff);
+    }
+
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 30px;
+      font-size: 2.2em;
+      font-weight: 700;
+      text-align: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-weight: 600;
+      color: #34495e;
+      margin-bottom: 8px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input {
+      padding: 15px 20px;
+      border: 2px solid #e1e8ed;
+      border-radius: 15px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.8);
+      color: #2c3e50;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .predict-btn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .predict-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    }
+
+    .predict-btn:active {
+      transform: translateY(-1px);
+    }
+
+    .result-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 20px;
+      padding: 30px;
+      color: white;
+      margin-bottom: 20px;
+      box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+      transform: scale(0.95);
+      opacity: 0;
+      transition: all 0.5s ease;
+    }
+
+    .result-card.show {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .result-title {
+      font-size: 1.8em;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .result-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    .result-label {
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .result-value {
+      font-size: 18px;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .health-good { background: linear-gradient(135deg, #48CAE4, #0077BE) !important; }
+    .health-fair { background: linear-gradient(135deg, #F4A261, #E76F51) !important; }
+    .health-poor { background: linear-gradient(135deg, #E63946, #A4161A) !important; }
+
+    .stress-low { background: linear-gradient(135deg, #06FFA5, #00CC88) !important; }
+    .stress-medium { background: linear-gradient(135deg, #FFB347, #FF8C42) !important; }
+    .stress-high { background: linear-gradient(135deg, #FF6B6B, #EE5A52) !important; }
+
+    .placeholder-content {
+      text-align: center;
+      color: #7f8c8d;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    .icon {
+      font-size: 3em;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .main-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      h1 {
+        font-size: 1.8em;
+      }
+      
+      .input-section, .output-section {
+        padding: 25px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="floating-shapes">
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+    <div class="shape"></div>
+  </div>
+
+  <div class="main-container">
+    <!-- Input Section -->
+    <div class="input-section">
+      <h1>🧠 Mental Health Predictor</h1>
+      <form id="predict-form">
+        <div class="form-grid">
+          <div class="input-group">
+            <label for="tech">💻 Technology Usage</label>
+            <input type="number" id="tech" placeholder="Hours per day" step="0.1" required />
+          </div>
+
+          <div class="input-group">
+            <label for="social">📱 Social Media</label>
+            <input type="number" id="social" placeholder="Hours per day" step="0.1" required />
+          </div>
+
+          <div class="input-group">
+            <label for="gaming">🎮 Gaming Hours</label>
+            <input type="number" id="gaming" placeholder="Hours per day" step="0.1" required />
+          </div>
+
+          <div class="input-group">
+            <label for="screen">📺 Screen Time</label>
+            <input type="number" id="screen" placeholder="Total hours" step="0.1" required />
+          </div>
+
+          <div class="input-group">
+            <label for="sleep">😴 Sleep Hours</label>
+            <input type="number" id="sleep" placeholder="Hours per night" step="0.1" required />
+          </div>
+
+          <div class="input-group">
+            <label for="activity">🏃 Physical Activity</label>
+            <input type="number" id="activity" placeholder="Hours per day" step="0.1" required />
+          </div>
+        </div>
+        
+        <button type="submit" class="predict-btn">
+          🔮 Analyze My Mental Health
+        </button>
+      </form>
+    </div>
+
+    <!-- Output Section -->
+    <div class="output-section">
+      <div id="placeholder" class="placeholder-content">
+        <span class="icon">🎯</span>
+        <h2>Ready for Analysis</h2>
+        <p>Fill in your daily habits and lifestyle information to get personalized mental health and stress level predictions.</p>
+        <p><strong>Get insights based on your digital wellness patterns!</strong></p>
+      </div>
+
+      <div id="result" class="result-card" style="display: none;">
+        <div class="result-title">📊 Your Analysis Results</div>
+        <div class="result-item">
+          <span class="result-label">🧠 Mental Health Status:</span>
+          <span class="result-value" id="mental-health-value">-</span>
+        </div>
+        <div class="result-item">
+          <span class="result-label">😰 Stress Level:</span>
+          <span class="result-value" id="stress-level-value">-</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("predict-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const data = {
+        Technology_Usage_Hours: parseFloat(document.getElementById("tech").value),
+        Social_Media_Usage_Hours: parseFloat(document.getElementById("social").value),
+        Gaming_Hours: parseFloat(document.getElementById("gaming").value),
+        Screen_Time_Hours: parseFloat(document.getElementById("screen").value),
+        Sleep_Hours: parseFloat(document.getElementById("sleep").value),
+        Physical_Activity_Hours: parseFloat(document.getElementById("activity").value),
+      };
+
+      try {
+        const response = await fetch("http://127.0.0.1:5001/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.mental_health_status && result.stress_level) {
+          // Hide placeholder and show results
+          document.getElementById("placeholder").style.display = "none";
+          document.getElementById("result").style.display = "block";
+          
+          // Update values
+          const mentalHealthElement = document.getElementById("mental-health-value");
+          const stressLevelElement = document.getElementById("stress-level-value");
+          
+          mentalHealthElement.textContent = result.mental_health_status;
+          stressLevelElement.textContent = result.stress_level;
+          
+          // Add appropriate styling classes
+          mentalHealthElement.className = "result-value";
+          stressLevelElement.className = "result-value";
+          
+          if (result.mental_health_status.toLowerCase().includes('good')) {
+            mentalHealthElement.classList.add('health-good');
+          } else if (result.mental_health_status.toLowerCase().includes('fair')) {
+            mentalHealthElement.classList.add('health-fair');
+          } else {
+            mentalHealthElement.classList.add('health-poor');
+          }
+          
+          if (result.stress_level.toLowerCase().includes('low')) {
+            stressLevelElement.classList.add('stress-low');
+          } else if (result.stress_level.toLowerCase().includes('medium')) {
+            stressLevelElement.classList.add('stress-medium');
+          } else {
+            stressLevelElement.classList.add('stress-high');
+          }
+          
+          // Trigger animation
+          setTimeout(() => {
+            document.getElementById("result").classList.add('show');
+          }, 100);
+          
+        } else {
+          // Show error in placeholder area
+          document.getElementById("placeholder").innerHTML = `
+            <span class="icon">❌</span>
+            <h2>Analysis Failed</h2>
+            <p>${result.error || "Unable to process your data. Please check your backend server."}</p>
+          `;
+        }
+      } catch (error) {
+        document.getElementById("placeholder").innerHTML = `
+          <span class="icon">⚠️</span>
+          <h2>Connection Error</h2>
+          <p>Unable to connect to the prediction service. Please ensure your backend server is running on port 5000.</p>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>
